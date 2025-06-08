@@ -1,0 +1,44 @@
+{
+  "Comment": "My Story Buddy CloudFront Distribution",
+  "Origins": {
+    "S3Origin": {
+      "DomainName": "YOUR-S3-BUCKET-NAME.s3.amazonaws.com",
+      "S3OriginConfig": {
+        "OriginAccessIdentity": "origin-access-identity/cloudfront/YOUR-OAI-ID"
+      }
+    }
+  },
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "S3Origin",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "Compress": true,
+    "AllowedMethods": ["GET", "HEAD", "OPTIONS"],
+    "CachedMethods": ["GET", "HEAD", "OPTIONS"],
+    "ForwardedValues": {
+      "QueryString": false,
+      "Cookies": {
+        "Forward": "none"
+      }
+    },
+    "MinTTL": 0,
+    "DefaultTTL": 86400,
+    "MaxTTL": 31536000
+  },
+  "CustomErrorResponses": [
+    {
+      "ErrorCode": 403,
+      "ResponsePagePath": "/index.html",
+      "ResponseCode": 200,
+      "ErrorCachingMinTTL": 0
+    },
+    {
+      "ErrorCode": 404,
+      "ResponsePagePath": "/index.html",
+      "ResponseCode": 200,
+      "ErrorCachingMinTTL": 0
+    }
+  ],
+  "Enabled": true,
+  "PriceClass": "PriceClass_100",
+  "DefaultRootObject": "index.html"
+} 

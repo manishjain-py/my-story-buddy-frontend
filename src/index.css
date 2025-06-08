@@ -1,16 +1,45 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --primary-color: #FF9AA2;
+  --secondary-color: #FFB7B2;
+  --accent-color: #FFDAC1;
+  --background-color: #E2F0CB;
+  --text-color: #2C3E50;
+  --button-color: #B5EAD7;
+  --button-hover: #C7CEEA;
+  --story-bg: #FFFFFF;
+  
+  font-family: 'Baloo 2', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 154, 162, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(181, 234, 215, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 50% 50%, rgba(255, 218, 193, 0.1) 0%, transparent 30%);
+  background-attachment: fixed;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 a {
@@ -20,14 +49,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
