@@ -2,7 +2,7 @@
   "Comment": "My Story Buddy CloudFront Distribution",
   "Origins": {
     "S3Origin": {
-      "DomainName": "YOUR-S3-BUCKET-NAME.s3.amazonaws.com",
+      "DomainName": "my-story-buddy-frontend.s3.amazonaws.com",
       "S3OriginConfig": {
         "OriginAccessIdentity": "origin-access-identity/cloudfront/YOUR-OAI-ID"
       }

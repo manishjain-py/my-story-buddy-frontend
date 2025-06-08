@@ -67,7 +67,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>✨ My Story Buddy ✨</h1>
+      <h1>✨ My Story Buddy - Where Magic Happens! ✨</h1>
       <p>Tell me what kind of story you want, and I'll create a magical tale just for you! 🌟</p>
       <p className="subtitle">Or just click the button for a surprise story! 🎁</p>
       <textarea
