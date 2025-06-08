@@ -11,7 +11,10 @@ npm run dev
 
 ## Deployment
 
-The application is automatically deployed to AWS S3 and CloudFront when changes are pushed to the main branch.
+The application is automatically deployed to AWS S3 and CloudFront when changes are pushed to the main branch. The deployment process is handled by GitHub Actions.
+
+### Deployment Status
+You can check the status of deployments in the "Actions" tab of this repository. Each push to the main branch will trigger a new deployment.
 
 ### Setting up GitHub Actions
 
