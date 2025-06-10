@@ -9,7 +9,9 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const API_URL = 'http://127.0.0.1:8003';
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:8003'
+    : 'https://os5rm4hff4.execute-api.us-west-2.amazonaws.com/default';
 
   const handleGenerate = async () => {
     setLoading(true)
