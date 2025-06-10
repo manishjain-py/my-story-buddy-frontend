@@ -24,8 +24,6 @@ function App() {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'include',
-        mode: 'cors',
         body: JSON.stringify({ prompt: description })
       })
       if (!response.ok) {
