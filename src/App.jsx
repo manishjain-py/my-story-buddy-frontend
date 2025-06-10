@@ -9,7 +9,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const API_URL = 'http://127.0.0.1:8001';
+  const API_URL = 'http://127.0.0.1:8003';
 
   const handleGenerate = async () => {
     setLoading(true)
