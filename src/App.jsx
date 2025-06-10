@@ -5,20 +5,23 @@ function App() {
   const [description, setDescription] = useState('')
   const [story, setStory] = useState('')
   const [title, setTitle] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const API_URL = 'http://127.0.0.1:8001';
 
   const handleGenerate = async () => {
     setLoading(true)
     setError('')
     try {
       console.log('Sending request with prompt:', description);
-      const response = await fetch('https://os5rm4hff4.execute-api.us-west-2.amazonaws.com/default/generateStory', {
+      const response = await fetch(`${API_URL}/generateStory`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Origin': 'http://localhost:5173'
+          'Origin': window.location.origin
         },
         body: JSON.stringify({ prompt: description })
       })
@@ -39,6 +42,7 @@ function App() {
       if (data.title && data.story) {
         setTitle(data.title)
         setStory(data.story)
+        setImageUrl(data.image_url)
         console.log('State updated - Title:', data.title);
         console.log('State updated - Story:', data.story);
       } else {
@@ -50,6 +54,7 @@ function App() {
       console.error('Detailed error:', err)
       setTitle('')
       setStory('')
+      setImageUrl('')
     } finally {
       setLoading(false)
     }
@@ -88,11 +93,20 @@ function App() {
       </button>
       {error && <p className="error">❌ {error}</p>}
       {story && (
-        <div className="story-output">
-          <div className="story-title-container">
-            <h2 className="story-title">{title}</h2>
+        <div className="story-container">
+          {imageUrl && (
+            <div className="story-cover">
+              <img 
+                src={imageUrl} 
+                alt={`Cover for ${title}`} 
+                className="story-image"
+              />
+            </div>
+          )}
+          <h2 className="story-title">✨ {title} ✨</h2>
+          <div className="story-text">
+            {formatStory(story)}
           </div>
-          <pre>{formatStory(story)}</pre>
         </div>
       )}
     </div>
