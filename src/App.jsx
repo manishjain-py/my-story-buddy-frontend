@@ -11,7 +11,7 @@ function App() {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
-    : 'https://os5rm4hff4.execute-api.us-west-2.amazonaws.com/default';
+    : 'https://plctvlxyx65kl2ygonimr6efa40zfunz.lambda-url.us-east-1.on.aws';
 
   const handleGenerate = async () => {
     setLoading(true)
