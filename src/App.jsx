@@ -277,47 +277,57 @@ function App() {
               <button className="close-button" onClick={() => setShowComicModal(false)}>✕</button>
             </div>
             <div className="comic-content">
-              <div className="comic-image-container">
-                <img 
-                  src={imageUrls[currentComicPage]} 
-                  alt={`${title} - Page ${currentComicPage + 1}`}
-                  className="comic-image"
-                />
-                <div className="comic-page-title">
-                  {currentComicPage === 0 && "🌟 Part 1: The Beginning"}
-                  {currentComicPage === 1 && "🚀 Part 2: The Adventure"}
-                  {currentComicPage === 2 && "⚡ Part 3: The Challenge"}
-                  {currentComicPage === 3 && "🎉 Part 4: The Resolution"}
-                </div>
-              </div>
-              
-              <div className="comic-navigation">
-                <button 
-                  className="nav-button prev-button"
-                  onClick={() => setCurrentComicPage(Math.max(0, currentComicPage - 1))}
-                  disabled={currentComicPage === 0}
-                >
-                  ← Previous
-                </button>
+              <div className="comic-viewer">
+                {/* Left Navigation Arrow */}
+                {currentComicPage > 0 && (
+                  <button 
+                    className="side-nav-button left-nav"
+                    onClick={() => setCurrentComicPage(currentComicPage - 1)}
+                    title="Previous page"
+                  >
+                    ‹
+                  </button>
+                )}
                 
-                <div className="page-dots">
-                  {imageUrls.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`page-dot ${index === currentComicPage ? 'active' : ''}`}
-                      onClick={() => setCurrentComicPage(index)}
-                    >
-                    </button>
-                  ))}
+                <div className="comic-image-container">
+                  <img 
+                    src={imageUrls[currentComicPage]} 
+                    alt={`${title} - Page ${currentComicPage + 1}`}
+                    className="comic-image"
+                  />
+                  <div className="comic-page-title">
+                    {currentComicPage === 0 && "🌟 Part 1: The Beginning"}
+                    {currentComicPage === 1 && "🚀 Part 2: The Adventure"}
+                    {currentComicPage === 2 && "⚡ Part 3: The Challenge"}
+                    {currentComicPage === 3 && "🎉 Part 4: The Resolution"}
+                  </div>
+                  
+                  {/* Page indicator overlay */}
+                  <div className="page-indicator-overlay">
+                    <div className="page-dots">
+                      {imageUrls.map((_, index) => (
+                        <button
+                          key={index}
+                          className={`page-dot ${index === currentComicPage ? 'active' : ''}`}
+                          onClick={() => setCurrentComicPage(index)}
+                          title={`Go to page ${index + 1}`}
+                        >
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 
-                <button 
-                  className="nav-button next-button"
-                  onClick={() => setCurrentComicPage(Math.min(imageUrls.length - 1, currentComicPage + 1))}
-                  disabled={currentComicPage === imageUrls.length - 1}
-                >
-                  Next →
-                </button>
+                {/* Right Navigation Arrow */}
+                {currentComicPage < imageUrls.length - 1 && (
+                  <button 
+                    className="side-nav-button right-nav"
+                    onClick={() => setCurrentComicPage(currentComicPage + 1)}
+                    title="Next page"
+                  >
+                    ›
+                  </button>
+                )}
               </div>
               
               <div className="keyboard-hint">
