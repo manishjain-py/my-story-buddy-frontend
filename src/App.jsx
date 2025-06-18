@@ -11,6 +11,9 @@ function App() {
   const [funFacts, setFunFacts] = useState([])
   const [currentFactIndex, setCurrentFactIndex] = useState(0)
   const [showFunFactsModal, setShowFunFactsModal] = useState(false)
+  const [showTextModal, setShowTextModal] = useState(false)
+  const [showComicModal, setShowComicModal] = useState(false)
+  const [currentComicPage, setCurrentComicPage] = useState(0)
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
@@ -155,33 +158,38 @@ function App() {
       </button>
       {error && <p className="error">❌ {error}</p>}
       {story && (
-        <div className="story-container">
-          <h2 className="story-title">✨ {title} ✨</h2>
-          <div className="story-text">
-            {formatStory(story)}
+        <div className="story-ready-container">
+          <h2 className="story-ready-title">🎉 Your Story is Ready! 🎉</h2>
+          <h3 className="story-title-display">✨ {title} ✨</h3>
+          <p className="format-instruction">Choose how you'd like to experience your adventure:</p>
+          
+          <div className="format-buttons">
+            <button 
+              className="format-button text-format"
+              onClick={() => {
+                setShowTextModal(true);
+                setCurrentComicPage(0);
+              }}
+            >
+              📖 Read as Text
+              <span className="format-description">Read the full story</span>
+            </button>
+            
+            <button 
+              className="format-button comic-format"
+              onClick={() => {
+                setShowComicModal(true);
+                setCurrentComicPage(0);
+              }}
+              disabled={imageUrls.length === 0}
+            >
+              🎨 View as Comic
+              <span className="format-description">Explore the illustrated adventure</span>
+            </button>
           </div>
           
-          {imageUrls.length > 0 && (
-            <div className="story-images">
-              <h3 className="images-title">📚 Story Illustrations 📚</h3>
-              {imageUrls.map((imageUrl, index) => (
-                <div key={index} className="story-image-container">
-                  <div className="image-header">
-                    <h4 className="image-title">
-                      {index === 0 && "🌟 Part 1: The Beginning"}
-                      {index === 1 && "🚀 Part 2: The Adventure"}
-                      {index === 2 && "⚡ Part 3: The Challenge"}
-                      {index === 3 && "🎉 Part 4: The Resolution"}
-                    </h4>
-                  </div>
-                  <img 
-                    src={imageUrl} 
-                    alt={`${title} - Part ${index + 1}`} 
-                    className="story-image"
-                  />
-                </div>
-              ))}
-            </div>
+          {imageUrls.length === 0 && (
+            <p className="comic-loading">Comic illustrations are still being created...</p>
           )}
         </div>
       )}
@@ -210,6 +218,84 @@ function App() {
             <div className="loading-spinner">
               <div className="spinner"></div>
               <p className="loading-text">Crafting your adventure...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Text Story Modal */}
+      {showTextModal && (
+        <div className="story-modal text-story-modal">
+          <div className="modal-backdrop" onClick={() => setShowTextModal(false)}></div>
+          <div className="story-modal-content">
+            <div className="modal-header">
+              <h2 className="modal-story-title">📖 {title}</h2>
+              <button className="close-button" onClick={() => setShowTextModal(false)}>✕</button>
+            </div>
+            <div className="text-story-content">
+              <div className="story-text-scrollable">
+                {formatStory(story)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comic Story Modal */}
+      {showComicModal && imageUrls.length > 0 && (
+        <div className="story-modal comic-story-modal">
+          <div className="modal-backdrop" onClick={() => setShowComicModal(false)}></div>
+          <div className="story-modal-content">
+            <div className="modal-header">
+              <h2 className="modal-story-title">🎨 {title}</h2>
+              <span className="page-indicator">
+                Page {currentComicPage + 1} of {imageUrls.length}
+              </span>
+              <button className="close-button" onClick={() => setShowComicModal(false)}>✕</button>
+            </div>
+            <div className="comic-content">
+              <div className="comic-image-container">
+                <img 
+                  src={imageUrls[currentComicPage]} 
+                  alt={`${title} - Page ${currentComicPage + 1}`}
+                  className="comic-image"
+                />
+                <div className="comic-page-title">
+                  {currentComicPage === 0 && "🌟 Part 1: The Beginning"}
+                  {currentComicPage === 1 && "🚀 Part 2: The Adventure"}
+                  {currentComicPage === 2 && "⚡ Part 3: The Challenge"}
+                  {currentComicPage === 3 && "🎉 Part 4: The Resolution"}
+                </div>
+              </div>
+              
+              <div className="comic-navigation">
+                <button 
+                  className="nav-button prev-button"
+                  onClick={() => setCurrentComicPage(Math.max(0, currentComicPage - 1))}
+                  disabled={currentComicPage === 0}
+                >
+                  ← Previous
+                </button>
+                
+                <div className="page-dots">
+                  {imageUrls.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`page-dot ${index === currentComicPage ? 'active' : ''}`}
+                      onClick={() => setCurrentComicPage(index)}
+                    >
+                    </button>
+                  ))}
+                </div>
+                
+                <button 
+                  className="nav-button next-button"
+                  onClick={() => setCurrentComicPage(Math.min(imageUrls.length - 1, currentComicPage + 1))}
+                  disabled={currentComicPage === imageUrls.length - 1}
+                >
+                  Next →
+                </button>
+              </div>
             </div>
           </div>
         </div>
