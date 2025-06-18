@@ -53,6 +53,16 @@ function App() {
     }
   }, [showComicModal, showTextModal, currentComicPage, imageUrls.length]);
 
+  // Reset scroll position when comic page changes
+  useEffect(() => {
+    if (showComicModal) {
+      const container = document.querySelector('.comic-image-container');
+      if (container) {
+        container.scrollTop = 0;
+      }
+    }
+  }, [currentComicPage, showComicModal]);
+
   // Function to fetch fun facts
   const fetchFunFacts = async (prompt) => {
     try {
