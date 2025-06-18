@@ -14,6 +14,8 @@ function App() {
   const [showTextModal, setShowTextModal] = useState(false)
   const [showComicModal, setShowComicModal] = useState(false)
   const [currentComicPage, setCurrentComicPage] = useState(0)
+  const [preloadedImages, setPreloadedImages] = useState(new Set())
+  const [imageLoading, setImageLoading] = useState(false)
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
@@ -35,9 +37,17 @@ function App() {
     const handleKeyPress = (event) => {
       if (showComicModal && imageUrls.length > 0) {
         if (event.key === 'ArrowLeft' && currentComicPage > 0) {
-          setCurrentComicPage(currentComicPage - 1);
+          const newPage = currentComicPage - 1;
+          if (!preloadedImages.has(imageUrls[newPage])) {
+            setImageLoading(true);
+          }
+          setCurrentComicPage(newPage);
         } else if (event.key === 'ArrowRight' && currentComicPage < imageUrls.length - 1) {
-          setCurrentComicPage(currentComicPage + 1);
+          const newPage = currentComicPage + 1;
+          if (!preloadedImages.has(imageUrls[newPage])) {
+            setImageLoading(true);
+          }
+          setCurrentComicPage(newPage);
         } else if (event.key === 'Escape') {
           setShowComicModal(false);
         }
@@ -51,7 +61,7 @@ function App() {
       document.addEventListener('keydown', handleKeyPress);
       return () => document.removeEventListener('keydown', handleKeyPress);
     }
-  }, [showComicModal, showTextModal, currentComicPage, imageUrls.length]);
+  }, [showComicModal, showTextModal, currentComicPage, imageUrls.length, preloadedImages]);
 
   // Reset scroll position when comic page changes
   useEffect(() => {
@@ -62,6 +72,55 @@ function App() {
       }
     }
   }, [currentComicPage, showComicModal]);
+
+  // Preload all comic images when modal opens or imageUrls change
+  useEffect(() => {
+    if (showComicModal && imageUrls.length > 0) {
+      const preloadImages = () => {
+        const newPreloaded = new Set();
+        
+        imageUrls.forEach((url, index) => {
+          if (!preloadedImages.has(url)) {
+            const img = new Image();
+            img.onload = () => {
+              console.log(`Preloaded image ${index + 1}/${imageUrls.length}: ${url}`);
+              newPreloaded.add(url);
+              setPreloadedImages(prev => new Set([...prev, url]));
+            };
+            img.onerror = () => {
+              console.error(`Failed to preload image ${index + 1}: ${url}`);
+            };
+            img.src = url;
+          }
+        });
+      };
+
+      // Start preloading after a short delay to prioritize current image
+      const timeoutId = setTimeout(preloadImages, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showComicModal, imageUrls, preloadedImages]);
+
+  // Priority preload: Load current and next images immediately
+  useEffect(() => {
+    if (showComicModal && imageUrls.length > 0) {
+      const priorityUrls = [
+        imageUrls[currentComicPage], // Current image
+        imageUrls[currentComicPage + 1], // Next image
+        imageUrls[currentComicPage - 1]  // Previous image
+      ].filter(Boolean);
+
+      priorityUrls.forEach((url) => {
+        if (!preloadedImages.has(url)) {
+          const img = new Image();
+          img.onload = () => {
+            setPreloadedImages(prev => new Set([...prev, url]));
+          };
+          img.src = url;
+        }
+      });
+    }
+  }, [currentComicPage, showComicModal, imageUrls, preloadedImages]);
 
   // Function to fetch fun facts
   const fetchFunFacts = async (prompt) => {
@@ -282,7 +341,13 @@ function App() {
             <div className="modal-header">
               <button 
                 className="header-nav-button"
-                onClick={() => setCurrentComicPage(Math.max(0, currentComicPage - 1))}
+                onClick={() => {
+                  const newPage = Math.max(0, currentComicPage - 1);
+                  if (!preloadedImages.has(imageUrls[newPage])) {
+                    setImageLoading(true);
+                  }
+                  setCurrentComicPage(newPage);
+                }}
                 disabled={currentComicPage === 0}
                 title="Previous page"
               >
@@ -296,7 +361,13 @@ function App() {
               
               <button 
                 className="header-nav-button"
-                onClick={() => setCurrentComicPage(Math.min(imageUrls.length - 1, currentComicPage + 1))}
+                onClick={() => {
+                  const newPage = Math.min(imageUrls.length - 1, currentComicPage + 1);
+                  if (!preloadedImages.has(imageUrls[newPage])) {
+                    setImageLoading(true);
+                  }
+                  setCurrentComicPage(newPage);
+                }}
                 disabled={currentComicPage === imageUrls.length - 1}
                 title="Next page"
               >
@@ -307,10 +378,19 @@ function App() {
             </div>
             <div className="comic-content">
               <div className="comic-image-container">
+                {imageLoading && (
+                  <div className="image-loading-overlay">
+                    <div className="spinner"></div>
+                    <p>Loading comic page...</p>
+                  </div>
+                )}
                 <img 
                   src={imageUrls[currentComicPage]} 
                   alt={`${title} - Page ${currentComicPage + 1}`}
                   className="comic-image"
+                  onLoad={() => setImageLoading(false)}
+                  onLoadStart={() => setImageLoading(true)}
+                  style={{ opacity: imageLoading ? 0.3 : 1 }}
                 />
               </div>
             </div>
