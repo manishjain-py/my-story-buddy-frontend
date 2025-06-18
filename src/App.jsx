@@ -25,7 +25,7 @@ function App() {
     if (showFunFactsModal && funFacts.length > 0) {
       interval = setInterval(() => {
         setCurrentFactIndex((prev) => (prev + 1) % funFacts.length);
-      }, 3500); // Change fact every 3.5 seconds
+      }, 5500); // Change fact every 5.5 seconds
     }
     return () => clearInterval(interval);
   }, [showFunFactsModal, funFacts]);
