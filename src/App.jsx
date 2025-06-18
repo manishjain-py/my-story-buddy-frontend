@@ -5,7 +5,7 @@ function App() {
   const [description, setDescription] = useState('')
   const [story, setStory] = useState('')
   const [title, setTitle] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrls, setImageUrls] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -39,13 +39,15 @@ function App() {
       console.log('Raw API Response:', data);
       console.log('Title from response:', data.title);
       console.log('Story from response:', data.story);
+      console.log('Image URLs from response:', data.image_urls);
       
       if (data.title && data.story) {
         setTitle(data.title)
         setStory(data.story)
-        setImageUrl(data.image_url)
+        setImageUrls(data.image_urls || [])
         console.log('State updated - Title:', data.title);
         console.log('State updated - Story:', data.story);
+        console.log('State updated - Image URLs:', data.image_urls);
       } else {
         console.error('Invalid response format:', data);
         throw new Error('Invalid response format: missing title or story')
@@ -55,7 +57,7 @@ function App() {
       console.error('Detailed error:', err)
       setTitle('')
       setStory('')
-      setImageUrl('')
+      setImageUrls([])
     } finally {
       setLoading(false)
     }
@@ -95,19 +97,33 @@ function App() {
       {error && <p className="error">❌ {error}</p>}
       {story && (
         <div className="story-container">
-          {imageUrl && (
-            <div className="story-cover">
-              <img 
-                src={imageUrl} 
-                alt={`Cover for ${title}`} 
-                className="story-image"
-              />
-            </div>
-          )}
           <h2 className="story-title">✨ {title} ✨</h2>
           <div className="story-text">
             {formatStory(story)}
           </div>
+          
+          {imageUrls.length > 0 && (
+            <div className="story-images">
+              <h3 className="images-title">📚 Story Illustrations 📚</h3>
+              {imageUrls.map((imageUrl, index) => (
+                <div key={index} className="story-image-container">
+                  <div className="image-header">
+                    <h4 className="image-title">
+                      {index === 0 && "🌟 Part 1: The Beginning"}
+                      {index === 1 && "🚀 Part 2: The Adventure"}
+                      {index === 2 && "⚡ Part 3: The Challenge"}
+                      {index === 3 && "🎉 Part 4: The Resolution"}
+                    </h4>
+                  </div>
+                  <img 
+                    src={imageUrl} 
+                    alt={`${title} - Part ${index + 1}`} 
+                    className="story-image"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
