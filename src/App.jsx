@@ -30,6 +30,29 @@ function App() {
     return () => clearInterval(interval);
   }, [showFunFactsModal, funFacts]);
 
+  // Keyboard navigation for comic viewer
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (showComicModal && imageUrls.length > 0) {
+        if (event.key === 'ArrowLeft' && currentComicPage > 0) {
+          setCurrentComicPage(currentComicPage - 1);
+        } else if (event.key === 'ArrowRight' && currentComicPage < imageUrls.length - 1) {
+          setCurrentComicPage(currentComicPage + 1);
+        } else if (event.key === 'Escape') {
+          setShowComicModal(false);
+        }
+      }
+      if (showTextModal && event.key === 'Escape') {
+        setShowTextModal(false);
+      }
+    };
+
+    if (showComicModal || showTextModal) {
+      document.addEventListener('keydown', handleKeyPress);
+      return () => document.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [showComicModal, showTextModal, currentComicPage, imageUrls.length]);
+
   // Function to fetch fun facts
   const fetchFunFacts = async (prompt) => {
     try {
@@ -295,6 +318,10 @@ function App() {
                 >
                   Next →
                 </button>
+              </div>
+              
+              <div className="keyboard-hint">
+                <span>💡 Use ← → arrow keys to navigate • Press Esc to close</span>
               </div>
             </div>
           </div>
