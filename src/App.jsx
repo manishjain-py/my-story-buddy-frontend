@@ -270,68 +270,38 @@ function App() {
           <div className="modal-backdrop" onClick={() => setShowComicModal(false)}></div>
           <div className="story-modal-content">
             <div className="modal-header">
-              <h2 className="modal-story-title">🎨 {title}</h2>
-              <span className="page-indicator">
-                Page {currentComicPage + 1} of {imageUrls.length}
-              </span>
+              <button 
+                className="header-nav-button"
+                onClick={() => setCurrentComicPage(Math.max(0, currentComicPage - 1))}
+                disabled={currentComicPage === 0}
+                title="Previous page"
+              >
+                ←
+              </button>
+              
+              <div className="header-title-section">
+                <h2 className="modal-story-title">🎨 {title}</h2>
+                <span className="page-indicator">({currentComicPage + 1}/{imageUrls.length})</span>
+              </div>
+              
+              <button 
+                className="header-nav-button"
+                onClick={() => setCurrentComicPage(Math.min(imageUrls.length - 1, currentComicPage + 1))}
+                disabled={currentComicPage === imageUrls.length - 1}
+                title="Next page"
+              >
+                →
+              </button>
+              
               <button className="close-button" onClick={() => setShowComicModal(false)}>✕</button>
             </div>
             <div className="comic-content">
-              <div className="comic-viewer">
-                {/* Left Navigation Arrow */}
-                {currentComicPage > 0 && (
-                  <button 
-                    className="side-nav-button left-nav"
-                    onClick={() => setCurrentComicPage(currentComicPage - 1)}
-                    title="Previous page"
-                  >
-                    ‹
-                  </button>
-                )}
-                
-                <div className="comic-image-container">
-                  <img 
-                    src={imageUrls[currentComicPage]} 
-                    alt={`${title} - Page ${currentComicPage + 1}`}
-                    className="comic-image"
-                  />
-                  <div className="comic-page-title">
-                    {currentComicPage === 0 && "🌟 Part 1: The Beginning"}
-                    {currentComicPage === 1 && "🚀 Part 2: The Adventure"}
-                    {currentComicPage === 2 && "⚡ Part 3: The Challenge"}
-                    {currentComicPage === 3 && "🎉 Part 4: The Resolution"}
-                  </div>
-                  
-                  {/* Page indicator overlay */}
-                  <div className="page-indicator-overlay">
-                    <div className="page-dots">
-                      {imageUrls.map((_, index) => (
-                        <button
-                          key={index}
-                          className={`page-dot ${index === currentComicPage ? 'active' : ''}`}
-                          onClick={() => setCurrentComicPage(index)}
-                          title={`Go to page ${index + 1}`}
-                        >
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Right Navigation Arrow */}
-                {currentComicPage < imageUrls.length - 1 && (
-                  <button 
-                    className="side-nav-button right-nav"
-                    onClick={() => setCurrentComicPage(currentComicPage + 1)}
-                    title="Next page"
-                  >
-                    ›
-                  </button>
-                )}
-              </div>
-              
-              <div className="keyboard-hint">
-                <span>💡 Use ← → arrow keys to navigate • Press Esc to close</span>
+              <div className="comic-image-container">
+                <img 
+                  src={imageUrls[currentComicPage]} 
+                  alt={`${title} - Page ${currentComicPage + 1}`}
+                  className="comic-image"
+                />
               </div>
             </div>
           </div>
