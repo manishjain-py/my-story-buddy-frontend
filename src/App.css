@@ -911,6 +911,8 @@ button:disabled {
   flex-direction: column;
   padding: 0 2rem 2rem;
   gap: 1.5rem;
+  min-height: 0; /* Allow content to shrink */
+  overflow: hidden; /* Prevent overflow */
 }
 
 .comic-image-container {
@@ -924,16 +926,17 @@ button:disabled {
   border: 2px solid var(--accent-color);
   overflow: hidden;
   min-height: 0; /* Allow flex child to shrink */
+  max-height: calc(100vh - 300px); /* Reserve space for header and navigation */
 }
 
 .comic-image {
   max-width: 100%;
-  max-height: calc(100% - 3rem); /* Reserve space for title */
+  max-height: calc(100vh - 400px); /* Strict height limit to prevent overflow */
   object-fit: contain;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  flex: 1;
-  min-height: 0; /* Allow image to shrink */
+  width: auto;
+  height: auto;
 }
 
 .comic-page-title {
@@ -943,6 +946,7 @@ button:disabled {
   font-weight: bold;
   margin-top: 1rem;
   text-align: center;
+  flex-shrink: 0; /* Prevent title from shrinking */
 }
 
 .comic-navigation {
@@ -1064,10 +1068,21 @@ button:disabled {
   .comic-navigation {
     flex-direction: column;
     gap: 1rem;
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.98);
   }
 
   .nav-button {
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
+  }
+  
+  .comic-image {
+    max-height: calc(100vh - 500px); /* More space reserved on mobile */
+  }
+  
+  .comic-image-container {
+    max-height: calc(100vh - 400px); /* Adjust for mobile */
   }
 }
