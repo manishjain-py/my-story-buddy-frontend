@@ -16,6 +16,7 @@ function App() {
   const [currentComicPage, setCurrentComicPage] = useState(0)
   const [preloadedImages, setPreloadedImages] = useState(new Set())
   const [imageLoading, setImageLoading] = useState(false)
+  const [selectedFormats, setSelectedFormats] = useState(['Comic Book', 'Text Story']) // Default selections
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
@@ -122,6 +123,33 @@ function App() {
     }
   }, [currentComicPage, showComicModal, imageUrls, preloadedImages]);
 
+  // Handle back button
+  const handleBack = () => {
+    if (story) {
+      // Reset to prompt page
+      setStory('')
+      setTitle('')
+      setImageUrls([])
+      setError('')
+    }
+  }
+
+  // Handle format selection
+  const toggleFormat = (format) => {
+    setSelectedFormats(prev => {
+      if (prev.includes(format)) {
+        return prev.filter(f => f !== format)
+      } else {
+        return [...prev, format]
+      }
+    })
+  }
+
+  // Show coming soon modal
+  const showComingSoon = (format) => {
+    alert(`${format} feature is coming soon! 🚀\n\nWe're working hard to bring you this amazing format. Stay tuned for updates!`)
+  }
+
   // Function to fetch fun facts
   const fetchFunFacts = async (prompt) => {
     try {
@@ -174,7 +202,10 @@ function App() {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ prompt: description })
+        body: JSON.stringify({ 
+          prompt: description,
+          formats: selectedFormats 
+        })
       })
       if (!response.ok) {
         const errorData = await response.text();
@@ -228,63 +259,200 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <h1>✨ My Story Buddy - Where Magic Happens! ✨</h1>
-      <p>Tell me what kind of story you want, and I'll create a magical tale just for you! 🌟</p>
-      <p className="subtitle">Or just click the button for a surprise story! 🎁</p>
-      <textarea
-        className="story-input"
-        rows={3}
-        placeholder="What kind of story would you like? (e.g., A story about a friendly dragon who loves to dance)"
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-        disabled={loading}
-      />
-      <br />
-      <button 
-        onClick={handleGenerate} 
-        disabled={loading}
-        style={{ opacity: loading ? 0.7 : 1 }}
-      >
-        {loading ? '✨ Creating your magical story... ✨' : '🎨 Generate Story 🎨'}
-      </button>
-      {error && <p className="error">❌ {error}</p>}
-      {story && (
-        <div className="story-ready-container">
-          <h2 className="story-ready-title">🎉 Your Story is Ready! 🎉</h2>
-          <h3 className="story-title-display">✨ {title} ✨</h3>
-          <p className="format-instruction">Choose how you'd like to experience your adventure:</p>
-          
-          <div className="format-buttons">
+    <div className="app">
+      {/* Header */}
+      <div className="header">
+        <button className="back-button" onClick={handleBack} style={{ opacity: story ? 1 : 0.3 }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <h1 className="app-title">Storytime</h1>
+        <div className="header-spacer"></div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {!story ? (
+          <>
+            {/* Question Section */}
+            <div className="question-section">
+              <h2 className="main-question">What do you want to learn today?</h2>
+            </div>
+
+            {/* Input Section */}
+            <div className="input-section">
+              <textarea
+                className="topic-input"
+                placeholder="Enter your question or topic"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="action-buttons">
+              <button className="action-btn secondary">
+                <span className="btn-icon">📷</span>
+                Upload Image
+              </button>
+              <button className="action-btn secondary">
+                <span className="btn-icon">🎤</span>
+                Record Audio
+              </button>
+            </div>
+
+            {/* Generate Button */}
             <button 
-              className="format-button text-format"
-              onClick={() => {
-                setShowTextModal(true);
-                setCurrentComicPage(0);
-              }}
+              className="generate-btn"
+              onClick={handleGenerate}
+              disabled={loading || selectedFormats.length === 0}
             >
-              📖 Read as Text
-              <span className="format-description">Read the full story</span>
+              {loading ? 'Creating your story...' : 'Generate Story'}
             </button>
+
+            {error && <p className="error-message">{error}</p>}
+
+            {/* Story Formats Section */}
+            <div className="formats-section">
+              <h3 className="formats-title">Choose Your Preferred Story Formats</h3>
+              <p className="formats-subtitle">Select the formats you'd like to see for your story</p>
+              <div className="format-grid">
+                <div 
+                  className={`format-card ${selectedFormats.includes('Comic Book') ? 'selected' : ''}`}
+                  onClick={() => toggleFormat('Comic Book')}
+                >
+                  <div className="format-icon comic-icon">📚</div>
+                  <div className="format-info">
+                    <h4>Comic Book</h4>
+                  </div>
+                  {selectedFormats.includes('Comic Book') && <div className="selection-check">✓</div>}
+                </div>
+                <div 
+                  className={`format-card ${selectedFormats.includes('Text Story') ? 'selected' : ''}`}
+                  onClick={() => toggleFormat('Text Story')}
+                >
+                  <div className="format-icon text-icon">📄</div>
+                  <div className="format-info">
+                    <h4>Text Story</h4>
+                  </div>
+                  {selectedFormats.includes('Text Story') && <div className="selection-check">✓</div>}
+                </div>
+                <div 
+                  className={`format-card ${selectedFormats.includes('Animated Video') ? 'selected' : ''}`}
+                  onClick={() => toggleFormat('Animated Video')}
+                >
+                  <div className="format-icon video-icon">🎬</div>
+                  <div className="format-info">
+                    <h4>Animated Video</h4>
+                  </div>
+                  {selectedFormats.includes('Animated Video') && <div className="selection-check">✓</div>}
+                </div>
+                <div 
+                  className={`format-card ${selectedFormats.includes('Audio Story') ? 'selected' : ''}`}
+                  onClick={() => toggleFormat('Audio Story')}
+                >
+                  <div className="format-icon audio-icon">🎧</div>
+                  <div className="format-info">
+                    <h4>Audio Story</h4>
+                  </div>
+                  {selectedFormats.includes('Audio Story') && <div className="selection-check">✓</div>}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Story Results */
+          <div className="story-results">
+            <h2 className="story-title">{title}</h2>
+            <p className="format-instruction">Choose how you'd like to experience your story:</p>
             
-            <button 
-              className="format-button comic-format"
-              onClick={() => {
-                setShowComicModal(true);
-                setCurrentComicPage(0);
-              }}
-              disabled={imageUrls.length === 0}
-            >
-              🎨 View as Comic
-              <span className="format-description">Explore the illustrated adventure</span>
-            </button>
+            <div className="result-format-grid">
+              {selectedFormats.includes('Text Story') && (
+                <button 
+                  className="result-format-card"
+                  onClick={() => {
+                    setShowTextModal(true);
+                    setCurrentComicPage(0);
+                  }}
+                >
+                  <div className="format-icon text-icon">📄</div>
+                  <div className="format-info">
+                    <h4>Text Story</h4>
+                    <p>Read the full story</p>
+                  </div>
+                </button>
+              )}
+              
+              {selectedFormats.includes('Comic Book') && (
+                <button 
+                  className="result-format-card"
+                  onClick={() => {
+                    setShowComicModal(true);
+                    setCurrentComicPage(0);
+                  }}
+                  disabled={imageUrls.length === 0}
+                >
+                  <div className="format-icon comic-icon">📚</div>
+                  <div className="format-info">
+                    <h4>Comic Book</h4>
+                    <p>Explore the illustrated adventure</p>
+                  </div>
+                </button>
+              )}
+              
+              {selectedFormats.includes('Animated Video') && (
+                <button 
+                  className="result-format-card"
+                  onClick={() => showComingSoon('Animated Video')}
+                >
+                  <div className="format-icon video-icon">🎬</div>
+                  <div className="format-info">
+                    <h4>Animated Video</h4>
+                    <p>Watch your story come to life</p>
+                  </div>
+                  <div className="coming-soon-badge">Coming Soon</div>
+                </button>
+              )}
+              
+              {selectedFormats.includes('Audio Story') && (
+                <button 
+                  className="result-format-card"
+                  onClick={() => showComingSoon('Audio Story')}
+                >
+                  <div className="format-icon audio-icon">🎧</div>
+                  <div className="format-info">
+                    <h4>Audio Story</h4>
+                    <p>Listen to your adventure</p>
+                  </div>
+                  <div className="coming-soon-badge">Coming Soon</div>
+                </button>
+              )}
+            </div>
+            
+            {selectedFormats.includes('Comic Book') && imageUrls.length === 0 && (
+              <p className="comic-loading">Comic illustrations are still being created...</p>
+            )}
           </div>
-          
-          {imageUrls.length === 0 && (
-            <p className="comic-loading">Comic illustrations are still being created...</p>
-          )}
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="bottom-nav">
+        <button className="nav-item active">
+          <div className="nav-icon">🏠</div>
+          <span>Home</span>
+        </button>
+        <button className="nav-item">
+          <div className="nav-icon">📖</div>
+          <span>Stories</span>
+        </button>
+        <button className="nav-item">
+          <div className="nav-icon">👤</div>
+          <span>Profile</span>
+        </button>
+      </div>
 
       {/* Fun Facts Modal */}
       {showFunFactsModal && (
