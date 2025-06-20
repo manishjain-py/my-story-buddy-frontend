@@ -460,8 +460,8 @@ function App() {
           <div className="modal-backdrop"></div>
           <div className="modal-content">
             <div className="modal-header">
-              <h2 className="modal-title">✨ Creating your magical story... ✨</h2>
-              <p className="modal-subtitle">Meanwhile, here are some fun facts!</p>
+              <h2 className="modal-title">💡 Creating your magical story... 💡</h2>
+              <p className="modal-subtitle">Meanwhile, here are some fun facts to discover!</p>
             </div>
             
             {funFacts.length > 0 && (
