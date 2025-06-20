@@ -658,41 +658,71 @@ body {
   font-weight: 500;
 }
 
-/* Text Story Modal */
-.text-story-modal .story-modal-content {
-  width: 800px;
-  height: 600px;
-}
-
-.text-story-content {
-  flex: 1;
+/* Fullscreen Text Viewer */
+.fullscreen-text-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  z-index: 1000;
   overflow: hidden;
-  padding: 0 24px 24px;
 }
 
-.story-text-scrollable {
+.text-close-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  transition: all 0.2s;
+}
+
+.text-close-btn:hover {
+  background: rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.text-fullscreen-container {
+  width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 24px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  font-size: 16px;
-  line-height: 1.7;
-  color: #1a1a1a;
+  padding: 60px 40px 40px 40px;
+  box-sizing: border-box;
 }
 
-.story-text-scrollable p {
-  margin-bottom: 16px;
+.story-text-content {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.8;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.story-text-content p {
+  margin-bottom: 24px;
   text-align: left;
 }
 
-.story-text-scrollable p:first-child::first-letter {
-  font-size: 48px;
+.story-text-content p:first-child::first-letter {
+  font-size: 64px;
   color: #007AFF;
   float: left;
-  margin-right: 8px;
+  margin-right: 12px;
   line-height: 1;
-  margin-top: 4px;
+  margin-top: 8px;
   font-weight: bold;
 }
 
@@ -858,13 +888,32 @@ body {
     max-height: calc(100vh - 32px);
   }
   
-  .text-story-modal .story-modal-content,
+  .text-close-btn,
   .comic-close-btn {
     top: 16px;
     right: 16px;
     width: 32px;
     height: 32px;
     font-size: 14px;
+  }
+  
+  .text-fullscreen-container {
+    padding: 50px 20px 20px 20px;
+  }
+  
+  .story-text-content {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  
+  .story-text-content p {
+    margin-bottom: 20px;
+  }
+  
+  .story-text-content p:first-child::first-letter {
+    font-size: 48px;
+    margin-right: 8px;
+    margin-top: 6px;
   }
   
   .comic-page-indicator {

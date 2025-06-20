@@ -485,17 +485,16 @@ function App() {
 
       {/* Text Story Modal */}
       {showTextModal && (
-        <div className="story-modal text-story-modal">
-          <div className="modal-backdrop" onClick={() => setShowTextModal(false)}></div>
-          <div className="story-modal-content">
-            <div className="modal-header">
-              <h2 className="modal-story-title">📖 {title}</h2>
-              <button className="close-button" onClick={() => setShowTextModal(false)}>✕</button>
-            </div>
-            <div className="text-story-content">
-              <div className="story-text-scrollable">
-                {formatStory(story)}
-              </div>
+        <div className="fullscreen-text-viewer">
+          {/* Close Button */}
+          <button className="text-close-btn" onClick={() => setShowTextModal(false)}>
+            ✕
+          </button>
+          
+          {/* Full Screen Text */}
+          <div className="text-fullscreen-container">
+            <div className="story-text-content">
+              {formatStory(story)}
             </div>
           </div>
         </div>
