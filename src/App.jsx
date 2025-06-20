@@ -67,7 +67,7 @@ function App() {
   // Reset scroll position when comic page changes
   useEffect(() => {
     if (showComicModal) {
-      const container = document.querySelector('.comic-image-container');
+      const container = document.querySelector('.comic-fullscreen-container');
       if (container) {
         container.scrollTop = 0;
       }
@@ -503,65 +503,44 @@ function App() {
 
       {/* Comic Story Modal */}
       {showComicModal && imageUrls.length > 0 && (
-        <div className="story-modal comic-story-modal">
-          <div className="modal-backdrop" onClick={() => setShowComicModal(false)}></div>
-          <div className="story-modal-content">
-            <div className="modal-header">
-              <button 
-                className="header-nav-button"
-                onClick={() => {
-                  const newPage = Math.max(0, currentComicPage - 1);
-                  if (!preloadedImages.has(imageUrls[newPage])) {
-                    setImageLoading(true);
-                  }
-                  setCurrentComicPage(newPage);
-                }}
-                disabled={currentComicPage === 0}
-                title="Previous page"
-              >
-                ←
-              </button>
-              
-              <div className="header-title-section">
-                <h2 className="modal-story-title">🎨 {title}</h2>
-                <span className="page-indicator">({currentComicPage + 1}/{imageUrls.length})</span>
+        <div className="fullscreen-comic-viewer">
+          {/* Close Button */}
+          <button className="comic-close-btn" onClick={() => setShowComicModal(false)}>
+            ✕
+          </button>
+          
+          {/* Page Indicator */}
+          <div className="comic-page-indicator">
+            {currentComicPage + 1}/{imageUrls.length}
+          </div>
+          
+          {/* Full Screen Image */}
+          <div 
+            className="comic-fullscreen-container"
+            onClick={() => {
+              if (currentComicPage < imageUrls.length - 1) {
+                const newPage = currentComicPage + 1;
+                if (!preloadedImages.has(imageUrls[newPage])) {
+                  setImageLoading(true);
+                }
+                setCurrentComicPage(newPage);
+              }
+            }}
+            style={{ cursor: currentComicPage < imageUrls.length - 1 ? 'pointer' : 'default' }}
+          >
+            {imageLoading && (
+              <div className="comic-loading-overlay">
+                <div className="spinner"></div>
               </div>
-              
-              <button 
-                className="header-nav-button"
-                onClick={() => {
-                  const newPage = Math.min(imageUrls.length - 1, currentComicPage + 1);
-                  if (!preloadedImages.has(imageUrls[newPage])) {
-                    setImageLoading(true);
-                  }
-                  setCurrentComicPage(newPage);
-                }}
-                disabled={currentComicPage === imageUrls.length - 1}
-                title="Next page"
-              >
-                →
-              </button>
-              
-              <button className="close-button" onClick={() => setShowComicModal(false)}>✕</button>
-            </div>
-            <div className="comic-content">
-              <div className="comic-image-container">
-                {imageLoading && (
-                  <div className="image-loading-overlay">
-                    <div className="spinner"></div>
-                    <p>Loading comic page...</p>
-                  </div>
-                )}
-                <img 
-                  src={imageUrls[currentComicPage]} 
-                  alt={`${title} - Page ${currentComicPage + 1}`}
-                  className="comic-image"
-                  onLoad={() => setImageLoading(false)}
-                  onLoadStart={() => setImageLoading(true)}
-                  style={{ opacity: imageLoading ? 0.3 : 1 }}
-                />
-              </div>
-            </div>
+            )}
+            <img 
+              src={imageUrls[currentComicPage]} 
+              alt={`${title} - Page ${currentComicPage + 1}`}
+              className="comic-fullscreen-image"
+              onLoad={() => setImageLoading(false)}
+              onLoadStart={() => setImageLoading(true)}
+              style={{ opacity: imageLoading ? 0.3 : 1 }}
+            />
           </div>
         </div>
       )}
