@@ -427,7 +427,7 @@ body {
   font-weight: 500;
 }
 
-/* Fun Facts Modal Styles */
+/* Fun Facts Loading Screen */
 .fun-facts-modal {
   position: fixed;
   top: 0;
@@ -435,66 +435,66 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 1000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  color: white;
 }
 
 .modal-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  display: none;
 }
 
 .modal-content {
   position: relative;
-  background: white;
-  border-radius: 20px;
-  padding: 32px 24px;
-  max-width: 360px;
+  background: transparent;
+  border-radius: 0;
+  padding: 40px 24px;
+  max-width: 380px;
   width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
   text-align: center;
-  animation: slideIn 0.3s ease-out;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 .modal-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .modal-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 8px;
+  font-size: 28px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .modal-subtitle {
-  font-size: 16px;
-  color: #666;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
+  font-weight: 300;
 }
 
 .fun-fact-display {
-  margin: 24px 0;
-  min-height: 160px;
+  margin: 32px 0;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .fun-fact-card {
-  background: #f8f9fa;
-  border-radius: 16px;
-  padding: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 32px 28px;
   text-align: left;
-  animation: fadeInScale 0.5s ease-out;
-  line-height: 1.6;
+  animation: fadeInScale 0.6s ease-out;
+  line-height: 1.7;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .fun-fact-icon {
@@ -502,49 +502,52 @@ body {
 }
 
 .fun-fact-question {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
   margin-bottom: 16px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .fact-question {
-  font-size: 16px;
-  color: #1a1a1a;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 16px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .fact-answer {
-  font-size: 16px;
-  color: #1a1a1a;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.95);
   font-style: normal;
   margin: 0;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .loading-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 40px;
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #f0f0f0;
-  border-top: 3px solid #007AFF;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
-  color: #666;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
   margin: 0;
+  font-weight: 300;
 }
 
 /* Story Modal Styles */
@@ -745,6 +748,17 @@ body {
 }
 
 /* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
