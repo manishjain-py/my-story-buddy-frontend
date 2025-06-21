@@ -42,6 +42,39 @@ function AppContent() {
     ? 'http://127.0.0.1:8003'
     : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
 
+  // Handle OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const error = urlParams.get('error');
+    
+    if (token) {
+      // Handle successful OAuth
+      localStorage.setItem('auth_token', token);
+      
+      // Fetch user data with the token
+      fetch(`${API_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(userData => {
+        // This will be handled by AuthContext
+        window.location.href = '/'; // Redirect to home and let AuthContext handle the rest
+      })
+      .catch(error => {
+        console.error('Failed to fetch user data:', error);
+        localStorage.removeItem('auth_token');
+        window.location.href = '/';
+      });
+    } else if (error) {
+      console.error('OAuth error:', error);
+      // You might want to show an error message to the user
+      window.location.href = '/';
+    }
+  }, [API_URL]);
+
   // Rotate through fun facts while loading
   useEffect(() => {
     let interval;
