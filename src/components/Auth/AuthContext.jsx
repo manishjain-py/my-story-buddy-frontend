@@ -15,9 +15,24 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('auth_token'));
   const [loading, setLoading] = useState(true);
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:8003'
-    : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
+  // Check if we have a custom API URL in environment or use defaults
+  const getApiUrl = () => {
+    // Check for environment variable first
+    if (process.env.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+    
+    // Default to local development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://127.0.0.1:8003';
+    }
+    
+    // For production, we'll need to deploy the backend with auth to a server
+    // For now, this will try the Lambda URL but auth routes may not work there yet
+    return 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
+  };
+  
+  const API_URL = getApiUrl();
 
   // Check if user is authenticated on app load
   useEffect(() => {
@@ -53,6 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Attempting login to:', `${API_URL}/auth/login`);
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -61,8 +77,11 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password })
       });
 
+      console.log('Login response status:', response.status);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error('Login error response:', error);
         throw new Error(error.detail || 'Login failed');
       }
 
@@ -81,6 +100,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (email, password, firstName, lastName) => {
     try {
+      console.log('Attempting signup to:', `${API_URL}/auth/signup`);
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         headers: {
@@ -94,8 +114,11 @@ export const AuthProvider = ({ children }) => {
         })
       });
 
+      console.log('Signup response status:', response.status);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error('Signup error response:', error);
         throw new Error(error.detail || 'Signup failed');
       }
 

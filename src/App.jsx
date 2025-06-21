@@ -38,9 +38,20 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
   const [selectedStory, setSelectedStory] = useState(null)
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:8003'
-    : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
+  // Use the same API URL logic as AuthContext
+  const getApiUrl = () => {
+    if (process.env.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+    
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://127.0.0.1:8003';
+    }
+    
+    return 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
+  };
+  
+  const API_URL = getApiUrl();
 
   // Handle OAuth callback
   useEffect(() => {
