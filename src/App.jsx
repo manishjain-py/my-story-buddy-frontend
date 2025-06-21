@@ -1,7 +1,22 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-function App() {
+// Import authentication components
+import { AuthProvider, useAuth } from './components/Auth/AuthContext'
+import LoginModal from './components/Auth/LoginModal'
+import SignupModal from './components/Auth/SignupModal'
+import OTPModal from './components/Auth/OTPModal'
+import UserProfile from './components/Auth/UserProfile'
+
+// Import story components
+import MyStories from './components/MyStories/MyStories'
+import StoryViewer from './components/StoryViewer/StoryViewer'
+
+function AppContent() {
+  const { user, isAuthenticated, token } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
   const [description, setDescription] = useState('')
   const [story, setStory] = useState('')
   const [title, setTitle] = useState('')
@@ -17,6 +32,11 @@ function App() {
   const [preloadedImages, setPreloadedImages] = useState(new Set())
   const [imageLoading, setImageLoading] = useState(false)
   const [selectedFormats, setSelectedFormats] = useState(['Comic Book', 'Text Story']) // Default selections
+  const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
+  
+  // Navigation state
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
+  const [selectedStory, setSelectedStory] = useState(null)
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
@@ -125,13 +145,34 @@ function App() {
 
   // Handle back button
   const handleBack = () => {
-    if (story) {
-      // Reset to prompt page
+    if (currentPage === 'story-viewer') {
+      setCurrentPage('my-stories')
+      setSelectedStory(null)
+    } else if (currentPage === 'my-stories') {
+      setCurrentPage('home')
+    } else if (story) {
+      // Reset to prompt page on home
       setStory('')
       setTitle('')
       setImageUrls([])
       setError('')
     }
+  }
+
+  // Navigation handlers
+  const handleGoToMyStories = () => {
+    setCurrentPage('my-stories')
+    setShowHamburgerMenu(false)
+  }
+
+  const handleStorySelect = (story) => {
+    setSelectedStory(story)
+    setCurrentPage('story-viewer')
+  }
+
+  const handleGoHome = () => {
+    setCurrentPage('home')
+    setShowHamburgerMenu(false)
   }
 
   // Handle format selection
@@ -154,12 +195,20 @@ function App() {
   const fetchFunFacts = async (prompt) => {
     try {
       console.log('Fetching fun facts for prompt:', prompt);
+      
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      // Add authentication header if user is logged in
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(`${API_URL}/generateFunFacts`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ prompt: prompt })
       });
       if (!response.ok) throw new Error('Failed to fetch fun facts');
@@ -196,12 +245,19 @@ function App() {
       fetchFunFacts(description);
       
       // Generate the story
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      // Add authentication header if user is logged in
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(`${API_URL}/generateStory`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ 
           prompt: description,
           formats: selectedFormats 
@@ -262,18 +318,44 @@ function App() {
     <div className="app">
       {/* Header */}
       <div className="header">
-        <button className="back-button" onClick={handleBack} style={{ opacity: story ? 1 : 0.3 }}>
+        <button className="hamburger-button" onClick={() => setShowHamburgerMenu(!showHamburgerMenu)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <h1 className="app-title">Storytime</h1>
+        <button className="back-button" onClick={handleBack} style={{ opacity: (story || currentPage !== 'home') ? 1 : 0.3 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <h1 className="app-title">Storytime</h1>
-        <div className="header-spacer"></div>
       </div>
 
       {/* Main Content */}
       <div className="main-content">
-        {!story ? (
+        {currentPage === 'my-stories' ? (
+          <MyStories 
+            onStorySelect={handleStorySelect}
+            onBack={handleBack}
+          />
+        ) : currentPage === 'story-viewer' && selectedStory ? (
+          <StoryViewer 
+            story={selectedStory}
+            onBack={handleBack}
+            onShowTextModal={() => {
+              setStory(selectedStory.story_content)
+              setTitle(selectedStory.title)
+              setShowTextModal(true)
+            }}
+            onShowComicModal={() => {
+              setStory(selectedStory.story_content)
+              setTitle(selectedStory.title)
+              setImageUrls(selectedStory.image_urls || [])
+              setShowComicModal(true)
+              setCurrentComicPage(0)
+            }}
+          />
+        ) : !story ? (
           <>
             {/* Question Section */}
             <div className="question-section">
@@ -282,25 +364,29 @@ function App() {
 
             {/* Input Section */}
             <div className="input-section">
-              <textarea
-                className="topic-input"
-                placeholder="Enter your question or topic"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="action-buttons">
-              <button className="action-btn secondary">
-                <span className="btn-icon">📷</span>
-                Upload Image
-              </button>
-              <button className="action-btn secondary">
-                <span className="btn-icon">🎤</span>
-                Record Audio
-              </button>
+              <div className="input-container">
+                <textarea
+                  className="topic-input"
+                  placeholder="Enter your question or topic"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  disabled={loading}
+                />
+                <div className="input-actions">
+                  <button className="input-action-btn" title="Attach Image">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59722 21.9983 8.005 21.9983C6.41278 21.9983 4.88583 21.3658 3.76 20.24C2.63417 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63417 12.8758 3.76 11.75L12.33 3.18C13.0806 2.42944 14.0953 2.00492 15.155 2.00492C16.2147 2.00492 17.2294 2.42944 17.98 3.18C18.7306 3.93056 19.1551 4.94533 19.1551 6.005C19.1551 7.06467 18.7306 8.07944 17.98 8.83L10.25 16.56C9.87473 16.9353 9.36755 17.1444 8.84 17.1444C8.31245 17.1444 7.80527 16.9353 7.43 16.56C7.05473 16.1847 6.84555 15.6776 6.84555 15.15C6.84555 14.6224 7.05473 14.1153 7.43 13.74L15.07 6.1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button className="input-action-btn" title="Record Audio">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2C13.1046 2 14 2.89543 14 4V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V4C10 2.89543 10.8954 2 12 2Z" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M19 10V12C19 16.4183 15.4183 20 11 20H13C8.58172 20 5 16.4183 5 12V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M12 20V24M8 24H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Generate Button */}
@@ -438,21 +524,74 @@ function App() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="bottom-nav">
-        <button className="nav-item active">
-          <div className="nav-icon">🏠</div>
-          <span>Home</span>
-        </button>
-        <button className="nav-item">
-          <div className="nav-icon">📖</div>
-          <span>Stories</span>
-        </button>
-        <button className="nav-item">
-          <div className="nav-icon">👤</div>
-          <span>Profile</span>
-        </button>
-      </div>
+      {/* Hamburger Menu */}
+      {showHamburgerMenu && (
+        <div className="hamburger-menu">
+          <div className="menu-backdrop" onClick={() => setShowHamburgerMenu(false)}></div>
+          <div className="menu-content">
+            <div className="menu-header">
+              <h3>Menu</h3>
+              <button className="menu-close-btn" onClick={() => setShowHamburgerMenu(false)}>
+                ✕
+              </button>
+            </div>
+            <div className="menu-items">
+              {/* User authentication section */}
+              {isAuthenticated ? (
+                <div className="menu-auth-section">
+                  <UserProfile />
+                </div>
+              ) : (
+                <div className="menu-auth-buttons">
+                  <button 
+                    className="auth-submit-btn" 
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      setShowHamburgerMenu(false);
+                    }}
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    className="auth-otp-btn" 
+                    onClick={() => {
+                      setShowSignupModal(true);
+                      setShowHamburgerMenu(false);
+                    }}
+                  >
+                    Create Account
+                  </button>
+                </div>
+              )}
+              
+              <button 
+                className={`menu-item ${currentPage === 'home' ? 'active' : ''}`}
+                onClick={handleGoHome}
+              >
+                <span className="menu-icon">🏠</span>
+                Home
+              </button>
+              {isAuthenticated && (
+                <button 
+                  className={`menu-item ${currentPage === 'my-stories' ? 'active' : ''}`}
+                  onClick={handleGoToMyStories}
+                >
+                  <span className="menu-icon">📖</span>
+                  My Stories
+                </button>
+              )}
+              <button className="menu-item">
+                <span className="menu-icon">👤</span>
+                Profile
+              </button>
+              <button className="menu-item">
+                <span className="menu-icon">⚙️</span>
+                Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Fun Facts Modal */}
       {showFunFactsModal && (
@@ -543,8 +682,53 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Authentication Modals */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToSignup={() => {
+          setShowLoginModal(false);
+          setShowSignupModal(true);
+        }}
+        onSwitchToOTP={() => {
+          setShowLoginModal(false);
+          setShowOTPModal(true);
+        }}
+      />
+      
+      <SignupModal 
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onSwitchToLogin={() => {
+          setShowSignupModal(false);
+          setShowLoginModal(true);
+        }}
+        onSwitchToOTP={() => {
+          setShowSignupModal(false);
+          setShowOTPModal(true);
+        }}
+      />
+      
+      <OTPModal 
+        isOpen={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        onSwitchToLogin={() => {
+          setShowOTPModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </div>
   )
+}
+
+// Main App component with AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }
 
 export default App
