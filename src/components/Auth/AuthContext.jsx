@@ -15,8 +15,9 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('auth_token'));
   const [loading, setLoading] = useState(true);
 
-  // Temporarily point to local backend for all requests until we deploy backend to production
-  const API_URL = 'http://127.0.0.1:8003';
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:8003'
+    : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
 
   // Check if user is authenticated on app load
   useEffect(() => {

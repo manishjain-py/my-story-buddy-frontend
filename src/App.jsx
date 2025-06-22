@@ -38,8 +38,9 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
   const [selectedStory, setSelectedStory] = useState(null)
 
-  // Temporarily point to local backend for all requests
-  const API_URL = 'http://127.0.0.1:8003';
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:8003'
+    : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
 
   // Handle OAuth callback
   useEffect(() => {
