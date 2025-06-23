@@ -40,7 +40,7 @@ function AppContent() {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
-    : 'https://plctvlxyx65kl2ygonimr6efa40zfunz.lambda-url.us-east-1.on.aws';
+    : 'https://lvoqmbqsff3ogpx4auq3phqgh40mzcky.lambda-url.us-west-2.on.aws';
 
   // Handle OAuth callback
   useEffect(() => {
