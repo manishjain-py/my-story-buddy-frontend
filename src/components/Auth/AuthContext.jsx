@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
-    : 'https://e23mdrxxzglqosvp4maifljwky0mxabd.lambda-url.us-west-2.on.aws';
+    : 'https://lvoqmbqsff3ogpx4auq3phqgh40mzcky.lambda-url.us-west-2.on.aws';
 
   // Check if user is authenticated on app load
   useEffect(() => {
