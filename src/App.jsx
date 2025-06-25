@@ -41,11 +41,7 @@ function AppContent() {
   const API_URL = import.meta.env.VITE_API_URL || (
     window.location.hostname === 'localhost' 
       ? 'http://127.0.0.1:8003'
-      : (() => {
-          console.error('❌ VITE_API_URL not set in production environment');
-          alert('API URL not configured. Please check deployment.');
-          return null;
-        })()
+      : 'http://204.236.220.17'  // Production backend URL
   );
 
   // Handle OAuth callback
