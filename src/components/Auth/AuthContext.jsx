@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
-    : 'https://204.236.220.17';
+    : '/api';
 
   // Check if user is authenticated on app load
   useEffect(() => {

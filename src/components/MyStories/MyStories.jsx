@@ -10,7 +10,7 @@ const MyStories = ({ onStorySelect, onBack }) => {
 
   const API_URL = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8003'
-    : 'https://204.236.220.17';
+    : '/api';
 
   useEffect(() => {
     fetchMyStories();
