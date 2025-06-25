@@ -38,9 +38,15 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
   const [selectedStory, setSelectedStory] = useState(null)
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:8003'
-    : 'https://lvoqmbqsff3ogpx4auq3phqgh40mzcky.lambda-url.us-west-2.on.aws';
+  const API_URL = import.meta.env.VITE_API_URL || (
+    window.location.hostname === 'localhost' 
+      ? 'http://127.0.0.1:8003'
+      : (() => {
+          console.error('❌ VITE_API_URL not set in production environment');
+          alert('API URL not configured. Please check deployment.');
+          return null;
+        })()
+  );
 
   // Handle OAuth callback
   useEffect(() => {
