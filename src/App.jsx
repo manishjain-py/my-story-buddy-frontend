@@ -33,10 +33,13 @@ function AppContent() {
   const [imageLoading, setImageLoading] = useState(false)
   const [selectedFormats, setSelectedFormats] = useState(['Comic Book', 'Text Story']) // Default selections
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
+  const [pendingStoryId, setPendingStoryId] = useState(null) // Track story being generated
+  const [pollingInterval, setPollingInterval] = useState(null) // Store polling interval ID
   
   // Navigation state
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
   const [selectedStory, setSelectedStory] = useState(null)
+  const [newStoriesCount, setNewStoriesCount] = useState(0)
 
   const API_URL = import.meta.env.VITE_API_URL || (
     window.location.hostname === 'localhost' 
@@ -226,6 +229,128 @@ function AppContent() {
     alert(`${format} feature is coming soon! 🚀\n\nWe're working hard to bring you this amazing format. Stay tuned for updates!`)
   }
 
+  // Function to poll story status
+  const pollStoryStatus = async (storyId) => {
+    try {
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${API_URL}/story/${storyId}/status`, {
+        method: 'GET',
+        headers
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to check story status:', response.status);
+        return null;
+      }
+      
+      const data = await response.json();
+      console.log('Story status check:', data);
+      
+      if (data.status === 'NEW') {
+        // Story is complete!
+        console.log('Story completed:', data);
+        setTitle(data.title);
+        setStory(data.story);
+        setImageUrls(data.image_urls || []);
+        setShowFunFactsModal(false);
+        setLoading(false);
+        setPendingStoryId(null);
+        
+        // Clear polling interval
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          setPollingInterval(null);
+        }
+        
+        return true; // Story completed
+      }
+      
+      return false; // Story still in progress
+    } catch (error) {
+      console.error('Error polling story status:', error);
+      return null;
+    }
+  };
+
+  // Function to start polling for story completion
+  const startPolling = (storyId) => {
+    console.log('Starting polling for story:', storyId);
+    
+    // Clear any existing polling interval
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+    
+    // Poll every 3 seconds
+    const intervalId = setInterval(async () => {
+      const completed = await pollStoryStatus(storyId);
+      if (completed === true) {
+        // Story completed, polling will be cleared by pollStoryStatus
+        return;
+      } else if (completed === null) {
+        // Error occurred, stop polling
+        console.error('Polling failed, stopping...');
+        clearInterval(intervalId);
+        setPollingInterval(null);
+        setLoading(false);
+        setShowFunFactsModal(false);
+        setError('Failed to check story status. Please refresh and try again.');
+      }
+    }, 3000);
+    
+    setPollingInterval(intervalId);
+  };
+
+  // Function to fetch new stories count for notification badge
+  const fetchNewStoriesCount = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/my-stories`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewStoriesCount(data.new_stories_count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch new stories count:', error);
+    }
+  };
+
+  // Fetch new stories count when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchNewStoriesCount();
+      
+      // Set up periodic refresh for notification badge (every 30 seconds)
+      const interval = setInterval(fetchNewStoriesCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, token]);
+
+  // Cleanup polling on component unmount
+  useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [pollingInterval]);
+
   // Function to fetch fun facts
   const fetchFunFacts = async (prompt) => {
     try {
@@ -274,12 +399,12 @@ function AppContent() {
     setShowFunFactsModal(true)
     
     try {
-      console.log('Sending request with prompt:', description);
+      console.log('Sending async story request with prompt:', description);
       
       // Start fun facts fetch immediately (don't wait for it)
       fetchFunFacts(description);
       
-      // Generate the story
+      // Submit the story generation request (async)
       const headers = { 
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -298,6 +423,7 @@ function AppContent() {
           formats: selectedFormats 
         })
       })
+      
       if (!response.ok) {
         const errorData = await response.text();
         console.error('API Error:', {
@@ -305,36 +431,32 @@ function AppContent() {
           statusText: response.statusText,
           body: errorData
         });
-        throw new Error(`Failed to generate story: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to submit story request: ${response.status} ${response.statusText}`);
       }
-      const data = await response.json()
-      console.log('Raw API Response:', data);
-      console.log('Title from response:', data.title);
-      console.log('Story from response:', data.story);
-      console.log('Image URLs from response:', data.image_urls);
       
-      if (data.title && data.story) {
-        setTitle(data.title)
-        setStory(data.story)
-        setImageUrls(data.image_urls || [])
-        console.log('State updated - Title:', data.title);
-        console.log('State updated - Story:', data.story);
-        console.log('State updated - Image URLs:', data.image_urls);
+      const data = await response.json()
+      console.log('Story submission response:', data);
+      
+      if (data.story_id && data.status === 'IN_PROGRESS') {
+        // Story submission successful, start polling
+        console.log('Story submitted successfully with ID:', data.story_id);
+        setPendingStoryId(data.story_id);
+        startPolling(data.story_id);
         
-        // Hide the fun facts modal after successful generation
-        setShowFunFactsModal(false);
+        // Update fun facts modal to show generation message
+        setShowFunFactsModal(true);
       } else {
         console.error('Invalid response format:', data);
-        throw new Error('Invalid response format: missing title or story')
+        throw new Error('Invalid response format: missing story_id or wrong status')
       }
     } catch (err) {
-      setError(`Error generating story: ${err.message}`)
+      setError(`Error submitting story request: ${err.message}`)
       console.error('Detailed error:', err)
       setTitle('')
       setStory('')
       setImageUrls([])
+      setPendingStoryId(null)
       setShowFunFactsModal(false)
-    } finally {
       setLoading(false)
     }
   }
@@ -372,6 +494,7 @@ function AppContent() {
           <MyStories 
             onStorySelect={handleStorySelect}
             onBack={handleBack}
+            onNewStoriesCountChange={setNewStoriesCount}
           />
         ) : currentPage === 'story-viewer' && selectedStory ? (
           <StoryViewer 
@@ -613,6 +736,9 @@ function AppContent() {
                 >
                   <span className="menu-icon">📖</span>
                   My Stories
+                  {newStoriesCount > 0 && (
+                    <span className="notification-badge">{newStoriesCount}</span>
+                  )}
                 </button>
               )}
               <button className="menu-item">
