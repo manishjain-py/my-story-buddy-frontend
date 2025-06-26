@@ -11,6 +11,7 @@ import UserProfile from './components/Auth/UserProfile'
 // Import story components
 import MyStories from './components/MyStories/MyStories'
 import StoryViewer from './components/StoryViewer/StoryViewer'
+import PersonalizationPage from './components/Personalization/PersonalizationPage'
 
 function AppContent() {
   const { user, isAuthenticated, token } = useAuth();
@@ -37,7 +38,7 @@ function AppContent() {
   const [pollingInterval, setPollingInterval] = useState(null) // Store polling interval ID
   
   // Navigation state
-  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer'
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer', 'personalization'
   const [selectedStory, setSelectedStory] = useState(null)
   const [newStoriesCount, setNewStoriesCount] = useState(0)
 
@@ -186,7 +187,7 @@ function AppContent() {
     if (currentPage === 'story-viewer') {
       setCurrentPage('my-stories')
       setSelectedStory(null)
-    } else if (currentPage === 'my-stories') {
+    } else if (currentPage === 'my-stories' || currentPage === 'personalization') {
       setCurrentPage('home')
     } else if (story) {
       // Reset to prompt page on home
@@ -210,6 +211,11 @@ function AppContent() {
 
   const handleGoHome = () => {
     setCurrentPage('home')
+    setShowHamburgerMenu(false)
+  }
+
+  const handleGoToPersonalization = () => {
+    setCurrentPage('personalization')
     setShowHamburgerMenu(false)
   }
 
@@ -496,6 +502,10 @@ function AppContent() {
             onBack={handleBack}
             onNewStoriesCountChange={setNewStoriesCount}
           />
+        ) : currentPage === 'personalization' ? (
+          <PersonalizationPage 
+            onBack={handleBack}
+          />
         ) : currentPage === 'story-viewer' && selectedStory ? (
           <StoryViewer 
             story={selectedStory}
@@ -730,16 +740,25 @@ function AppContent() {
                 Home
               </button>
               {isAuthenticated && (
-                <button 
-                  className={`menu-item ${currentPage === 'my-stories' ? 'active' : ''}`}
-                  onClick={handleGoToMyStories}
-                >
-                  <span className="menu-icon">📖</span>
-                  My Stories
-                  {newStoriesCount > 0 && (
-                    <span className="notification-badge">{newStoriesCount}</span>
-                  )}
-                </button>
+                <>
+                  <button 
+                    className={`menu-item ${currentPage === 'my-stories' ? 'active' : ''}`}
+                    onClick={handleGoToMyStories}
+                  >
+                    <span className="menu-icon">📖</span>
+                    My Stories
+                    {newStoriesCount > 0 && (
+                      <span className="notification-badge">{newStoriesCount}</span>
+                    )}
+                  </button>
+                  <button 
+                    className={`menu-item ${currentPage === 'personalization' ? 'active' : ''}`}
+                    onClick={handleGoToPersonalization}
+                  >
+                    <span className="menu-icon">🎭</span>
+                    Personalization
+                  </button>
+                </>
               )}
               <button className="menu-item">
                 <span className="menu-icon">👤</span>
