@@ -36,6 +36,7 @@ function AppContent() {
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
   const [pendingStoryId, setPendingStoryId] = useState(null) // Track story being generated
   const [pollingInterval, setPollingInterval] = useState(null) // Store polling interval ID
+  const [completedAvatarsCount, setCompletedAvatarsCount] = useState(0) // Track completed avatars
   
   // Navigation state
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer', 'personalization'
@@ -217,6 +218,8 @@ function AppContent() {
   const handleGoToPersonalization = () => {
     setCurrentPage('personalization')
     setShowHamburgerMenu(false)
+    // Clear completed avatars count when visiting personalization page
+    setCompletedAvatarsCount(0)
   }
 
   // Handle format selection
@@ -337,13 +340,39 @@ function AppContent() {
     }
   };
 
-  // Fetch new stories count when user is authenticated
+  // Function to fetch completed avatars count for notification badge
+  const fetchCompletedAvatarsCount = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/personalization/completed-count`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCompletedAvatarsCount(data.completed_avatars_count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch completed avatars count:', error);
+    }
+  };
+
+  // Fetch notification counts when user is authenticated
   useEffect(() => {
     if (isAuthenticated && token) {
       fetchNewStoriesCount();
+      fetchCompletedAvatarsCount();
       
-      // Set up periodic refresh for notification badge (every 30 seconds)
-      const interval = setInterval(fetchNewStoriesCount, 30000);
+      // Set up periodic refresh for notification badges (every 30 seconds)
+      const interval = setInterval(() => {
+        fetchNewStoriesCount();
+        fetchCompletedAvatarsCount();
+      }, 30000);
       return () => clearInterval(interval);
     }
   }, [isAuthenticated, token]);
@@ -505,6 +534,7 @@ function AppContent() {
         ) : currentPage === 'personalization' ? (
           <PersonalizationPage 
             onBack={handleBack}
+            onAvatarViewed={() => setCompletedAvatarsCount(0)}
           />
         ) : currentPage === 'story-viewer' && selectedStory ? (
           <StoryViewer 
@@ -757,6 +787,9 @@ function AppContent() {
                   >
                     <span className="menu-icon">🎭</span>
                     Personalization
+                    {completedAvatarsCount > 0 && (
+                      <span className="notification-badge">{completedAvatarsCount}</span>
+                    )}
                   </button>
                 </>
               )}

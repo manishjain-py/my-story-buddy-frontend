@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../Auth/AuthContext';
 import './PersonalizationPage.css';
 
-function PersonalizationPage({ onBack }) {
+function PersonalizationPage({ onBack, onAvatarViewed }) {
   const { token } = useAuth();
   const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,6 +17,10 @@ function PersonalizationPage({ onBack }) {
   
   // Edit mode
   const [isEditing, setIsEditing] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  
+  // Modal state
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || (
     window.location.hostname === 'localhost' 
@@ -28,6 +32,20 @@ function PersonalizationPage({ onBack }) {
   useEffect(() => {
     fetchAvatar();
   }, []);
+
+  // Handle keyboard events for modal
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === 'Escape' && showAvatarModal) {
+        setShowAvatarModal(false);
+      }
+    };
+
+    if (showAvatarModal) {
+      document.addEventListener('keydown', handleKeyPress);
+      return () => document.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [showAvatarModal]);
 
   const fetchAvatar = async () => {
     try {
@@ -53,6 +71,10 @@ function PersonalizationPage({ onBack }) {
       setAvatar(data);
       setAvatarName(data.avatar_name);
       setTraitsDescription(data.traits_description);
+      // Mark avatar as viewed when it's fetched and displayed
+      if (data && onAvatarViewed) {
+        onAvatarViewed();
+      }
     } catch (err) {
       console.error('Error fetching avatar:', err);
       setError('Failed to load avatar data');
@@ -99,7 +121,7 @@ function PersonalizationPage({ onBack }) {
       return;
     }
 
-    if (!avatar && !selectedImage) {
+    if ((!avatar || isCreatingNew) && !selectedImage) {
       setError('Please select an image');
       return;
     }
@@ -109,14 +131,14 @@ function PersonalizationPage({ onBack }) {
     setSuccess('');
 
     try {
-      if (selectedImage) {
-        // Create new avatar
+      if (selectedImage || isCreatingNew) {
+        // Create new avatar using async endpoint
         const formData = new FormData();
         formData.append('avatar_name', avatarName.trim());
         formData.append('traits_description', traitsDescription.trim());
         formData.append('image', selectedImage);
 
-        const response = await fetch(`${API_URL}/personalization/avatar`, {
+        const response = await fetch(`${API_URL}/personalization/avatar/async`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -126,14 +148,21 @@ function PersonalizationPage({ onBack }) {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.detail || 'Failed to create avatar');
+          throw new Error(errorData.detail || 'Failed to start avatar generation');
         }
 
         const data = await response.json();
-        setAvatar(data);
-        setSuccess('Avatar created successfully!');
+        setSuccess('Avatar generation started! Check back in a few minutes. You can continue using the app in the meantime.');
         setSelectedImage(null);
         setImagePreview(null);
+        
+        // Clear the form
+        setAvatarName('');
+        setTraitsDescription('');
+        setIsCreatingNew(false);
+        
+        // Refresh to check for any existing avatar
+        await fetchAvatar();
       } else {
         // Update existing avatar details
         const response = await fetch(`${API_URL}/personalization/avatar`, {
@@ -159,6 +188,7 @@ function PersonalizationPage({ onBack }) {
       }
 
       setIsEditing(false);
+      setIsCreatingNew(false);
     } catch (err) {
       console.error('Error submitting avatar:', err);
       setError(err.message);
@@ -169,12 +199,14 @@ function PersonalizationPage({ onBack }) {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setIsCreatingNew(false);
     setError('');
     setSuccess('');
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setIsCreatingNew(false);
     setError('');
     setSuccess('');
     setSelectedImage(null);
@@ -222,7 +254,9 @@ function PersonalizationPage({ onBack }) {
             <img 
               src={avatar.s3_image_url} 
               alt={avatar.avatar_name}
-              className="avatar-image"
+              className="avatar-image clickable"
+              onClick={() => setShowAvatarModal(true)}
+              title="Click to view full size"
             />
             <div className="avatar-details">
               <h3>{avatar.avatar_name}</h3>
@@ -244,6 +278,7 @@ function PersonalizationPage({ onBack }) {
               className="new-avatar-button"
               onClick={() => {
                 setIsEditing(true);
+                setIsCreatingNew(true);
                 resetForm();
               }}
             >
@@ -256,9 +291,9 @@ function PersonalizationPage({ onBack }) {
         <div className="avatar-form">
           <form onSubmit={handleSubmit}>
             <div className="form-section">
-              <h3>{avatar ? 'Edit Avatar' : 'Create Your Avatar'}</h3>
+              <h3>{isCreatingNew ? 'Create New Avatar' : avatar ? 'Edit Avatar' : 'Create Your Avatar'}</h3>
               
-              {(!avatar || selectedImage) && (
+              {(!avatar || selectedImage || isCreatingNew) && (
                 <div className="image-upload-section">
                   <label className="image-upload-label">
                     <input
@@ -324,10 +359,10 @@ function PersonalizationPage({ onBack }) {
                   {loading ? (
                     <>
                       <span className="spinner"></span>
-                      {avatar && !selectedImage ? 'Updating...' : 'Creating Avatar...'}
+                      {avatar && !selectedImage && !isCreatingNew ? 'Updating...' : 'Creating Avatar...'}
                     </>
                   ) : (
-                    avatar && !selectedImage ? 'Update Avatar' : 'Create Avatar'
+                    avatar && !selectedImage && !isCreatingNew ? 'Update Avatar' : 'Create Avatar'
                   )}
                 </button>
                 
@@ -355,6 +390,31 @@ function PersonalizationPage({ onBack }) {
           <li>Only one avatar per account (you can replace it anytime)</li>
         </ul>
       </div>
+
+      {/* Avatar Full-Screen Modal */}
+      {showAvatarModal && avatar && (
+        <div className="fullscreen-avatar-viewer">
+          {/* Close Button */}
+          <button className="avatar-close-btn" onClick={() => setShowAvatarModal(false)}>
+            ✕
+          </button>
+          
+          {/* Avatar Details */}
+          <div className="avatar-fullscreen-details">
+            <h2>{avatar.avatar_name}</h2>
+            <p>{avatar.traits_description}</p>
+          </div>
+          
+          {/* Full Screen Image */}
+          <div className="avatar-fullscreen-container">
+            <img 
+              src={avatar.s3_image_url} 
+              alt={avatar.avatar_name}
+              className="avatar-fullscreen-image"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
