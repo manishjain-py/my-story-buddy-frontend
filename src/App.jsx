@@ -273,11 +273,8 @@ function AppContent() {
         setLoading(false);
         setPendingStoryId(null);
         
-        // Clear polling interval
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
-        }
+        // Ensure we stay on the home page to show the generated story
+        setCurrentPage('home');
         
         return true; // Story completed
       }
@@ -302,7 +299,10 @@ function AppContent() {
     const intervalId = setInterval(async () => {
       const completed = await pollStoryStatus(storyId);
       if (completed === true) {
-        // Story completed, polling will be cleared by pollStoryStatus
+        // Story completed, stop polling
+        console.log('Story completed, stopping polling');
+        clearInterval(intervalId);
+        setPollingInterval(null);
         return;
       } else if (completed === null) {
         // Error occurred, stop polling
