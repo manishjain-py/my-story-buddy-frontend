@@ -5,7 +5,6 @@ import './App.css'
 import { AuthProvider, useAuth } from './components/Auth/AuthContext'
 import LoginModal from './components/Auth/LoginModal'
 import SignupModal from './components/Auth/SignupModal'
-import OTPModal from './components/Auth/OTPModal'
 import UserProfile from './components/Auth/UserProfile'
 
 // Import story components
@@ -17,7 +16,6 @@ function AppContent() {
   const { user, isAuthenticated, token } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
-  const [showOTPModal, setShowOTPModal] = useState(false);
   const [description, setDescription] = useState('')
   const [story, setStory] = useState('')
   const [title, setTitle] = useState('')
@@ -212,6 +210,11 @@ function AppContent() {
 
   const handleGoHome = () => {
     setCurrentPage('home')
+    // Reset story state to show the prompt page
+    setStory('')
+    setTitle('')
+    setImageUrls([])
+    setError('')
     setShowHamburgerMenu(false)
   }
 
@@ -793,14 +796,6 @@ function AppContent() {
                   </button>
                 </>
               )}
-              <button className="menu-item">
-                <span className="menu-icon">👤</span>
-                Profile
-              </button>
-              <button className="menu-item">
-                <span className="menu-icon">⚙️</span>
-                Settings
-              </button>
             </div>
           </div>
         </div>
@@ -904,10 +899,6 @@ function AppContent() {
           setShowLoginModal(false);
           setShowSignupModal(true);
         }}
-        onSwitchToOTP={() => {
-          setShowLoginModal(false);
-          setShowOTPModal(true);
-        }}
       />
       
       <SignupModal 
@@ -915,19 +906,6 @@ function AppContent() {
         onClose={() => setShowSignupModal(false)}
         onSwitchToLogin={() => {
           setShowSignupModal(false);
-          setShowLoginModal(true);
-        }}
-        onSwitchToOTP={() => {
-          setShowSignupModal(false);
-          setShowOTPModal(true);
-        }}
-      />
-      
-      <OTPModal 
-        isOpen={showOTPModal}
-        onClose={() => setShowOTPModal(false)}
-        onSwitchToLogin={() => {
-          setShowOTPModal(false);
           setShowLoginModal(true);
         }}
       />
