@@ -11,6 +11,7 @@ import UserProfile from './components/Auth/UserProfile'
 import MyStories from './components/MyStories/MyStories'
 import StoryViewer from './components/StoryViewer/StoryViewer'
 import PersonalizationPage from './components/Personalization/PersonalizationPage'
+import PrivacyPolicy from './components/PrivacyPolicy/PrivacyPolicy'
 
 function AppContent() {
   const { user, isAuthenticated, token } = useAuth();
@@ -37,7 +38,7 @@ function AppContent() {
   const [completedAvatarsCount, setCompletedAvatarsCount] = useState(0) // Track completed avatars
   
   // Navigation state
-  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer', 'personalization'
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer', 'personalization', 'privacy'
   const [selectedStory, setSelectedStory] = useState(null)
   const [newStoriesCount, setNewStoriesCount] = useState(0)
 
@@ -186,7 +187,7 @@ function AppContent() {
     if (currentPage === 'story-viewer') {
       setCurrentPage('my-stories')
       setSelectedStory(null)
-    } else if (currentPage === 'my-stories' || currentPage === 'personalization') {
+    } else if (currentPage === 'my-stories' || currentPage === 'personalization' || currentPage === 'privacy') {
       setCurrentPage('home')
     } else if (story) {
       // Reset to prompt page on home
@@ -223,6 +224,11 @@ function AppContent() {
     setShowHamburgerMenu(false)
     // Clear completed avatars count when visiting personalization page
     setCompletedAvatarsCount(0)
+  }
+
+  const handleGoToPrivacy = () => {
+    setCurrentPage('privacy')
+    setShowHamburgerMenu(false)
   }
 
   // Handle format selection
@@ -539,6 +545,8 @@ function AppContent() {
             onBack={handleBack}
             onAvatarViewed={() => setCompletedAvatarsCount(0)}
           />
+        ) : currentPage === 'privacy' ? (
+          <PrivacyPolicy />
         ) : currentPage === 'story-viewer' && selectedStory ? (
           <StoryViewer 
             story={selectedStory}
@@ -796,6 +804,13 @@ function AppContent() {
                   </button>
                 </>
               )}
+              <button 
+                className={`menu-item ${currentPage === 'privacy' ? 'active' : ''}`}
+                onClick={handleGoToPrivacy}
+              >
+                <span className="menu-icon">🔒</span>
+                Privacy Policy
+              </button>
             </div>
           </div>
         </div>
