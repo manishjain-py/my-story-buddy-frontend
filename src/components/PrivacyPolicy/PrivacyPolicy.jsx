@@ -196,13 +196,16 @@ const PrivacyPolicy = () => {
             please contact us:
           </p>
           <div className="contact-info">
-            <p><strong>Email:</strong> privacy@mystorybuddy.com</p>
+            <p><strong>Email:</strong> preethi@simplifyloop.com</p>
             <p><strong>Website:</strong> https://www.mystorybuddy.com</p>
+            <p><strong>WhatsApp:</strong> +91 9704983498</p>
             <p><strong>Mailing Address:</strong></p>
             <p>
+              Simplify Loop<br/>
               MyStoryBuddy Privacy Team<br/>
-              [Your Business Address]<br/>
-              [City, State, ZIP Code]
+              Jains Ravi Gayathri Heights<br/>
+              Jubilee Enclave, HITEC City<br/>
+              Hyderabad, Telangana, India
             </p>
           </div>
           <p>
