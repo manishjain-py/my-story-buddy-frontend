@@ -581,20 +581,6 @@ function AppContent() {
                   onChange={e => setDescription(e.target.value)}
                   disabled={loading}
                 />
-                <div className="input-actions">
-                  <button className="input-action-btn" title="Attach Image">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59722 21.9983 8.005 21.9983C6.41278 21.9983 4.88583 21.3658 3.76 20.24C2.63417 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63417 12.8758 3.76 11.75L12.33 3.18C13.0806 2.42944 14.0953 2.00492 15.155 2.00492C16.2147 2.00492 17.2294 2.42944 17.98 3.18C18.7306 3.93056 19.1551 4.94533 19.1551 6.005C19.1551 7.06467 18.7306 8.07944 17.98 8.83L10.25 16.56C9.87473 16.9353 9.36755 17.1444 8.84 17.1444C8.31245 17.1444 7.80527 16.9353 7.43 16.56C7.05473 16.1847 6.84555 15.6776 6.84555 15.15C6.84555 14.6224 7.05473 14.1153 7.43 13.74L15.07 6.1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                  <button className="input-action-btn" title="Record Audio">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 2C13.1046 2 14 2.89543 14 4V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V4C10 2.89543 10.8954 2 12 2Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M19 10V12C19 16.4183 15.4183 20 11 20H13C8.58172 20 5 16.4183 5 12V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <path d="M12 20V24M8 24H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                </div>
               </div>
             </div>
 
