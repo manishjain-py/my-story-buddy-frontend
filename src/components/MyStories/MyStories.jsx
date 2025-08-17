@@ -47,18 +47,18 @@ const MyStories = ({ onStorySelect, onBack, onNewStoriesCountChange }) => {
     }
   };
 
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Unknown date';
-    }
-  };
+  // const formatDate = (dateString) => {
+  //   try {
+  //     const date = new Date(dateString);
+  //     return date.toLocaleDateString('en-US', {
+  //       year: 'numeric',
+  //       month: 'short',
+  //       day: 'numeric'
+  //     });
+  //   } catch {
+  //     return 'Unknown date';
+  //   }
+  // };
 
   const markStoryAsViewed = async (storyId) => {
     try {
@@ -203,7 +203,7 @@ const MyStories = ({ onStorySelect, onBack, onNewStoriesCountChange }) => {
               <div className="story-card-header">
                 <h3 className="story-title">{story.title}</h3>
                 <div className="story-header-right">
-                  <span className="story-date">{formatDate(story.created_at)}</span>
+                  {/* <span className="story-date">{formatDate(story.created_at)}</span> */}
                   {getStatusIndicator(story)}
                 </div>
               </div>

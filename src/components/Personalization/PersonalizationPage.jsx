@@ -261,9 +261,9 @@ function PersonalizationPage({ onBack, onAvatarViewed }) {
             <div className="avatar-details">
               <h3>{avatar.avatar_name}</h3>
               <p className="avatar-traits">{avatar.traits_description}</p>
-              <p className="avatar-created">
+              {/* <p className="avatar-created">
                 Created: {new Date(avatar.created_at).toLocaleDateString()}
-              </p>
+              </p> */}
             </div>
           </div>
           
