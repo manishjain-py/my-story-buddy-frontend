@@ -190,6 +190,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      if (!token) {
+        return { success: false, error: 'Not authenticated' };
+      }
+
+      const response = await fetch(`${API_URL}/auth/delete-account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Account deletion failed');
+      }
+
+      const data = await response.json();
+      
+      // Clear all local data after successful deletion
+      localStorage.removeItem('auth_token');
+      setToken(null);
+      setUser(null);
+      
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   const value = {
     user,
     token,
@@ -200,7 +232,8 @@ export const AuthProvider = ({ children }) => {
     sendOTP,
     verifyOTP,
     loginWithGoogle,
-    logout
+    logout,
+    deleteAccount
   };
 
   return (

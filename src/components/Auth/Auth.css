@@ -469,7 +469,8 @@
 
 .user-profile-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .logout-btn {
@@ -487,6 +488,33 @@
   transition: all 0.2s;
   width: 100%;
   justify-content: center;
+}
+
+.delete-account-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #FFD6D6;
+  color: #FF3B30;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.delete-account-btn:hover:not(:disabled) {
+  background: #FFF0F0;
+  border-color: #FF3B30;
+}
+
+.delete-account-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .logout-btn:hover {
@@ -513,6 +541,174 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Delete account confirmation modal */
+.delete-confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.delete-confirmation-modal .modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.delete-confirmation-modal .modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: deleteModalSlideIn 0.3s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes deleteModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.delete-confirmation-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.delete-confirmation-modal .modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #FF3B30;
+}
+
+.delete-confirmation-modal .modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.delete-confirmation-modal .modal-close-btn:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.delete-confirmation-modal .modal-body {
+  padding: 24px;
+}
+
+.delete-confirmation-modal .modal-body p {
+  margin: 0 0 16px 0;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+.delete-confirmation-modal .modal-body ul {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+  color: #1a1a1a;
+}
+
+.delete-confirmation-modal .modal-body li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.delete-confirmation-modal .modal-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cancel-delete-btn {
+  flex: 1;
+  padding: 14px 20px;
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-delete-btn:hover:not(:disabled) {
+  background: #e9ecef;
+  border-color: #007AFF;
+}
+
+.cancel-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-delete-btn {
+  flex: 1;
+  padding: 14px 20px;
+  background: #FF3B30;
+  border: 1px solid #FF3B30;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-delete-btn:hover:not(:disabled) {
+  background: #D70015;
+  border-color: #D70015;
+}
+
+.confirm-delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.delete-error-message {
+  background: #FFF0F0;
+  border: 1px solid #FFD6D6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+
+.delete-error-message p {
+  margin: 0;
+  color: #FF3B30;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 /* Mobile responsive */
@@ -548,5 +744,19 @@
     flex-direction: column;
     gap: 10px;
     align-items: stretch;
+  }
+
+  .delete-confirmation-modal .modal-content {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+  }
+  
+  .delete-confirmation-modal .modal-actions {
+    flex-direction: column;
+  }
+  
+  .cancel-delete-btn,
+  .confirm-delete-btn {
+    flex: none;
   }
 }
