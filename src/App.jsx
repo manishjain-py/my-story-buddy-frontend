@@ -9,6 +9,7 @@ import UserProfile from './components/Auth/UserProfile'
 
 // Import story components
 import MyStories from './components/MyStories/MyStories'
+import PublicStories from './components/PublicStories/PublicStories'
 import StoryViewer from './components/StoryViewer/StoryViewer'
 import PersonalizationPage from './components/Personalization/PersonalizationPage'
 import PrivacyPolicy from './components/PrivacyPolicy/PrivacyPolicy'
@@ -38,7 +39,7 @@ function AppContent() {
   const [completedAvatarsCount, setCompletedAvatarsCount] = useState(0) // Track completed avatars
   
   // Navigation state
-  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'story-viewer', 'personalization', 'privacy'
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'public-stories', 'story-viewer', 'personalization', 'privacy'
   const [selectedStory, setSelectedStory] = useState(null)
   const [newStoriesCount, setNewStoriesCount] = useState(0)
 
@@ -185,9 +186,10 @@ function AppContent() {
   // Handle back button
   const handleBack = () => {
     if (currentPage === 'story-viewer') {
-      setCurrentPage('my-stories')
+      const previousPage = selectedStory?.source === 'public' ? 'public-stories' : 'my-stories'
+      setCurrentPage(previousPage)
       setSelectedStory(null)
-    } else if (currentPage === 'my-stories' || currentPage === 'personalization' || currentPage === 'privacy') {
+    } else if (currentPage === 'my-stories' || currentPage === 'public-stories' || currentPage === 'personalization' || currentPage === 'privacy') {
       setCurrentPage('home')
     } else if (story) {
       // Reset to prompt page on home
@@ -216,6 +218,11 @@ function AppContent() {
     setTitle('')
     setImageUrls([])
     setError('')
+    setShowHamburgerMenu(false)
+  }
+
+  const handleGoToPublicStories = () => {
+    setCurrentPage('public-stories')
     setShowHamburgerMenu(false)
   }
 
@@ -540,6 +547,11 @@ function AppContent() {
             onBack={handleBack}
             onNewStoriesCountChange={setNewStoriesCount}
           />
+        ) : currentPage === 'public-stories' ? (
+          <PublicStories 
+            onStorySelect={handleStorySelect}
+            onBack={handleBack}
+          />
         ) : currentPage === 'personalization' ? (
           <PersonalizationPage 
             onBack={handleBack}
@@ -765,6 +777,13 @@ function AppContent() {
               >
                 <span className="menu-icon">🏠</span>
                 Home
+              </button>
+              <button 
+                className={`menu-item ${currentPage === 'public-stories' ? 'active' : ''}`}
+                onClick={handleGoToPublicStories}
+              >
+                <span className="menu-icon">🌟</span>
+                Public Stories
               </button>
               {isAuthenticated && (
                 <>
