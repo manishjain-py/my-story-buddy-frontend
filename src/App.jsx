@@ -43,6 +43,7 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'public-stories', 'story-viewer', 'personalization', 'privacy', 'admin'
   const [selectedStory, setSelectedStory] = useState(null)
   const [newStoriesCount, setNewStoriesCount] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const API_URL = import.meta.env.VITE_API_URL || (
     window.location.hostname === 'localhost' 
@@ -384,11 +385,39 @@ function AppContent() {
     }
   };
 
+  // Check admin status when user changes
+  const checkAdminStatus = async () => {
+    if (!isAuthenticated || !token) {
+      setIsAdmin(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/auth/is-admin`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setIsAdmin(data.is_admin || false)
+      } else {
+        setIsAdmin(false)
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+      setIsAdmin(false)
+    }
+  };
+
   // Fetch notification counts when user is authenticated
   useEffect(() => {
     if (isAuthenticated && token) {
       fetchNewStoriesCount();
       fetchCompletedAvatarsCount();
+      checkAdminStatus(); // Check admin status when authenticated
       
       // Set up periodic refresh for notification badges (every 30 seconds)
       const interval = setInterval(() => {
@@ -396,6 +425,8 @@ function AppContent() {
         fetchCompletedAvatarsCount();
       }, 30000);
       return () => clearInterval(interval);
+    } else {
+      setIsAdmin(false);
     }
   }, [isAuthenticated, token]);
 
@@ -817,13 +848,15 @@ function AppContent() {
                       <span className="notification-badge">{completedAvatarsCount}</span>
                     )}
                   </button>
-                  <button 
-                    className={`menu-item ${currentPage === 'admin' ? 'active' : ''}`}
-                    onClick={handleGoToAdmin}
-                  >
-                    <span className="menu-icon">⚙️</span>
-                    Admin Panel
-                  </button>
+                  {isAdmin && (
+                    <button 
+                      className={`menu-item ${currentPage === 'admin' ? 'active' : ''}`}
+                      onClick={handleGoToAdmin}
+                    >
+                      <span className="menu-icon">⚙️</span>
+                      Admin Panel
+                    </button>
+                  )}
                 </>
               )}
               <button 
