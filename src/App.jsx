@@ -13,6 +13,7 @@ import PublicStories from './components/PublicStories/PublicStories'
 import StoryViewer from './components/StoryViewer/StoryViewer'
 import PersonalizationPage from './components/Personalization/PersonalizationPage'
 import PrivacyPolicy from './components/PrivacyPolicy/PrivacyPolicy'
+import AdminPanel from './components/Admin/AdminPanel'
 
 function AppContent() {
   const { user, isAuthenticated, token } = useAuth();
@@ -39,7 +40,7 @@ function AppContent() {
   const [completedAvatarsCount, setCompletedAvatarsCount] = useState(0) // Track completed avatars
   
   // Navigation state
-  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'public-stories', 'story-viewer', 'personalization', 'privacy'
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'my-stories', 'public-stories', 'story-viewer', 'personalization', 'privacy', 'admin'
   const [selectedStory, setSelectedStory] = useState(null)
   const [newStoriesCount, setNewStoriesCount] = useState(0)
 
@@ -189,7 +190,7 @@ function AppContent() {
       const previousPage = selectedStory?.source === 'public' ? 'public-stories' : 'my-stories'
       setCurrentPage(previousPage)
       setSelectedStory(null)
-    } else if (currentPage === 'my-stories' || currentPage === 'public-stories' || currentPage === 'personalization' || currentPage === 'privacy') {
+    } else if (currentPage === 'my-stories' || currentPage === 'public-stories' || currentPage === 'personalization' || currentPage === 'privacy' || currentPage === 'admin') {
       setCurrentPage('home')
     } else if (story) {
       // Reset to prompt page on home
@@ -235,6 +236,11 @@ function AppContent() {
 
   const handleGoToPrivacy = () => {
     setCurrentPage('privacy')
+    setShowHamburgerMenu(false)
+  }
+
+  const handleGoToAdmin = () => {
+    setCurrentPage('admin')
     setShowHamburgerMenu(false)
   }
 
@@ -559,6 +565,10 @@ function AppContent() {
           />
         ) : currentPage === 'privacy' ? (
           <PrivacyPolicy />
+        ) : currentPage === 'admin' ? (
+          <AdminPanel 
+            onBack={handleBack}
+          />
         ) : currentPage === 'story-viewer' && selectedStory ? (
           <StoryViewer 
             story={selectedStory}
@@ -806,6 +816,13 @@ function AppContent() {
                     {completedAvatarsCount > 0 && (
                       <span className="notification-badge">{completedAvatarsCount}</span>
                     )}
+                  </button>
+                  <button 
+                    className={`menu-item ${currentPage === 'admin' ? 'active' : ''}`}
+                    onClick={handleGoToAdmin}
+                  >
+                    <span className="menu-icon">⚙️</span>
+                    Admin Panel
                   </button>
                 </>
               )}
