@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react'
+import { useAuth } from '../Auth/AuthContext'
 import './AdminPanel.css'
 
 const AdminPanel = ({ onBack }) => {
+  const { token } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     story_content: '',
@@ -113,6 +115,9 @@ const AdminPanel = ({ onBack }) => {
           
           const response = await fetch(`${API_URL}/upload-image`, {
             method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
             body: formData
           })
           
@@ -176,7 +181,8 @@ const AdminPanel = ({ onBack }) => {
       const response = await fetch(`${API_URL}/admin/create-public-story`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(storyData)
       })
